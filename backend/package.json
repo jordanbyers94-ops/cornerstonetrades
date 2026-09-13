@@ -9,10 +9,14 @@
     "seed": "node src/seed.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.3.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.19.0",
     "morgan": "^1.10.0",
-    "nanoid": "^5.0.7"
+    "nanoid": "^5.0.7",
+    "nodemailer": "^10.0.9"
   }
 }

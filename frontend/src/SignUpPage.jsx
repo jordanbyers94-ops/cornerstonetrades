@@ -12,6 +12,8 @@ const initialForm = {
   license_number: "",
   licensing_body: "",
   story: "",
+  photo_url: "",
+  referred_by: "",
   public_directory: true,
 };
 
@@ -153,6 +155,25 @@ export default function SignUpPage() {
               onChange={(e) => update("story", e.target.value)}
               placeholder="A line or two about your business and what matters to you in your work."
             />
+          </div>
+
+          <div className="field-row">
+            <div className="field">
+              <label>Photo URL <span className="hint">(optional)</span></label>
+              <input
+                value={form.photo_url}
+                onChange={(e) => update("photo_url", e.target.value)}
+                placeholder="Link to a photo of you or your work"
+              />
+            </div>
+            <div className="field">
+              <label>Referred by <span className="hint">(optional)</span></label>
+              <input
+                value={form.referred_by}
+                onChange={(e) => update("referred_by", e.target.value)}
+                placeholder="Who told you about Cornerstone Trades?"
+              />
+            </div>
           </div>
 
           <div className="checkbox-field">
