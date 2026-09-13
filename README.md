@@ -4,17 +4,23 @@ A verified directory of Christian tradespeople in South East QLD. Customers sear
 trade and suburb; every listed business has had its licence manually checked against
 the public register before going live — no self-reported badges.
 
-## What's in v1 (deliberately minimal)
+## What's in v1.1
 
-- Public searchable directory (trade + suburb)
-- Tradie sign-up form → creates a **pending** profile
-- Lightweight admin screen to approve/reject/re-verify profiles (protected by a
-  shared admin key — fine for a small pilot, not a real login system)
-- 90-day re-verification cadence built into the data model
+- Public searchable directory (trade + suburb), sortable by name or most
+  recently verified
+- Visible "licence verified [date]" on every card, plus a public verification
+  history log per profile (not just an internal badge)
+- Tradie sign-up form → creates a **pending** profile, with optional photo
+  URL and a "referred by" field for tracking organic growth
+- Real admin login (username + bcrypt-hashed password, session cookie) —
+  replaces the earlier shared-key approach
+- Admin queue flags **overdue** profiles whose 90-day re-verification has lapsed
+- Sign-up form is rate-limited (10/hour) against spam
+- Optional email notification on new sign-up — no-ops safely until you add
+  SMTP credentials (see Environment variables below)
 
 **Cut from v1 on purpose:** community features, jobs board, payments, in-app
-messaging, public reviews. Add these once directory demand is proven — see the
-"What's next" section in the project notes.
+messaging, public reviews. Add these once directory demand is proven.
 
 ## Stack
 
@@ -35,11 +41,20 @@ npm run seed     # optional — adds two sample tradie profiles
 npm run dev       # runs on http://localhost:4000
 ```
 
-Set an admin key before you rely on the admin screen for anything real:
+### Environment variables
 
-```bash
-ADMIN_KEY=some-long-random-string npm run dev
-```
+| Variable | Required | Purpose |
+|---|---|---|
+| `SESSION_SECRET` | Before deploying | Signs the admin session cookie — set to a long random string |
+| `ADMIN_USERNAME` | Optional | Defaults to `admin` |
+| `ADMIN_PASSWORD_HASH` | Before deploying | bcrypt hash of your admin password — generate with `node -e "console.log(require('bcryptjs').hashSync('your-password', 10))"` |
+| `ADMIN_KEY` | Dev only | If `ADMIN_PASSWORD_HASH` isn't set, this is used as a plain-text fallback password for local dev — don't rely on this in production |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL` | Optional | If all are set, a new sign-up sends you an email. If unset, it's just logged to the console |
+| `FRONTEND_ORIGIN` | Before deploying | Your deployed frontend's URL, for CORS + cookies to work cross-origin |
+| `DB_PATH` | Recommended for deploy | Where the SQLite file lives — point this at a mounted volume so data survives redeploys |
+
+For local dev, the defaults work with no setup — the admin login accepts
+`admin` / `change-me-before-deploy` until you set real credentials.
 
 ### Frontend
 
@@ -78,8 +93,9 @@ Single `tradies` table — see `backend/src/db.js`. Key fields:
 
 ## Before a real pilot launch
 
-- Replace the shared admin key with real authentication
+- Set `ADMIN_PASSWORD_HASH` and `SESSION_SECRET` to real values (not the dev fallbacks)
 - Decide where SQLite data lives long-term (volume vs. Postgres migration)
+- Add SMTP credentials if you want real sign-up email notifications
 - Confirm domain name and trademark search results before committing to a
   final brand name
 - Manually verify each pilot tradie's licence against the relevant QLD
